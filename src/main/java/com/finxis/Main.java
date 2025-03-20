@@ -9,6 +9,7 @@ import cdm.base.datetime.daycount.functions.DayCountBasis;
 import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
 import cdm.base.datetime.metafields.FieldWithMetaTimeZone;
 import cdm.base.math.ArithmeticOperationEnum;
+import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
@@ -62,6 +63,17 @@ public class Main {
         Trade tradeObj = new Trade.TradeBuilderImpl();
         Trade newTrade = rosettaObjectMapper.readValue(tradeJson, tradeObj.getClass());
 
+        BondFutureModel bondFutureModel = main.setBondFutureData();
+        product = main.createBondFutureProduct(bondFutureModel);
+        trade = main.createFutureTrade(product, bondFutureModel);
+
+        tradeJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(trade);
+        System.out.println(tradeJson);
+
+        rosettaObjectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
+        tradeObj = new Trade.TradeBuilderImpl();
+        newTrade = rosettaObjectMapper.readValue(tradeJson, tradeObj.getClass());
+
     }
 
 public BondModel setBondData(){
@@ -87,6 +99,24 @@ public BondModel setBondData(){
 
 
         return bondModel;
+
+}
+
+public BondFutureModel setBondFutureData(){
+
+        BondFutureModel bondFutureModel = new BondFutureModel();
+        bondFutureModel.instrumentName = "TN MAR5 Future";
+        bondFutureModel.marketid = "CME";
+        bondFutureModel.side = "Buy";
+        bondFutureModel.tradeDate = "2025-02-07T10:00:00.000+00:00";
+        bondFutureModel.underlyingIsin = "DE000F1C2NG8";
+        bondFutureModel.price = "158.10000000";
+        bondFutureModel.currency = "EUR";
+        bondFutureModel.traderName = "CDMCXTRD018";
+        bondFutureModel.nominalQuantity = "12.00000000";
+        bondFutureModel.maturityDate = "2025-06-08T00:00:00.000+00:00";
+
+        return bondFutureModel;
 
 }
 
@@ -129,7 +159,7 @@ public Product createBondProduct(BondModel bondModel){
                                                         .setFixedRateSpecification(FixedRateSpecification.builder()
                                                                 .setRateSchedule(RateSchedule.builder()
                                                                         .setPriceValue(PriceSchedule.builder()
-                                                                                .setPriceExpression(PriceExpressionEnum.PERCENTAGE_OF_NOTIONAL))
+                                                                                .setPriceExpression(PriceExpressionEnum.PAR_VALUE_FRACTION))
                                                                         .setPrice(ReferenceWithMetaPriceSchedule.builder()
                                                                                 .setValue(PriceSchedule.builder()
                                                                                         .setValue(BigDecimal.valueOf(Double.parseDouble(bondModel.couponRate)))))))))))
@@ -213,6 +243,7 @@ public Trade createTrade(Product bond, BondModel bondModel){
                                                 .setPerUnitOf(UnitType.builder()
                                                         .setCurrencyValue(bondModel.currency))
                                                 .setPriceType(PriceTypeEnum.ASSET_PRICE)
+                                                .setPriceExpression(PriceExpressionEnum.PAR_VALUE_FRACTION)
                                                 .setComposite(PriceComposite.builder()
                                                         .setBaseValue(BigDecimal.valueOf(Double.parseDouble(bondModel.price)))
                                                         .setOperand(BigDecimal.valueOf(Double.parseDouble(".0213")))
@@ -264,5 +295,157 @@ public Trade createTrade(Product bond, BondModel bondModel){
         return trade;
 }
 
+
+    public Product createBondFutureProduct(BondFutureModel bondFutureModel){
+
+        DateTimeFormatter formatter  = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");
+        ZonedDateTime maturityDate = ZonedDateTime.parse(bondFutureModel.maturityDate, formatter);
+        Date terminationDate = Date.of(maturityDate.getYear(), maturityDate.getMonthValue(), maturityDate.getDayOfMonth());
+
+        ZonedDateTime zonedSettlementDate = ZonedDateTime.parse(bondFutureModel.tradeDate, formatter);
+        Date settlementDate = Date.of(zonedSettlementDate.getYear(), zonedSettlementDate.getMonthValue(), zonedSettlementDate.getDayOfMonth());
+
+        Product product = Product.builder()
+                .setTransferableProduct(TransferableProduct.builder()
+                        .setInstrument(Instrument.builder()
+                                .setListedDerivative(ListedDerivative.builder()
+                                        .setDeliveryTerm("H")
+                                        .setInstrumentType(InstrumentTypeEnum.LISTED_DERIVATIVE)
+                                        .setIdentifier(List.of(AssetIdentifier.builder()
+                                                .setIdentifierType(AssetIdTypeEnum.EXCHANGE_CODE)
+                                                .setIdentifierValue(bondFutureModel.instrumentName)))))
+                        .setEconomicTerms(EconomicTerms.builder()
+                                .setTerminationDate(AdjustableOrRelativeDate.builder()
+                                        .setAdjustableDate(AdjustableDate.builder()
+                                                .setAdjustedDate(FieldWithMetaDate.builder()
+                                                        .setValue(terminationDate))))
+                                .setPayout(List.of(Payout.builder()
+                                                .setAssetPayout(AssetPayout.builder()
+                                                        .setUnderlier(Asset.builder()
+                                                                .setInstrument(Instrument.builder()
+                                                                        .setSecurity(Security.builder()
+                                                                                .setIdentifier(List.of(AssetIdentifier.builder()
+                                                                                        .setIdentifierType(AssetIdTypeEnum.ISIN)
+                                                                                        .setIdentifierValue(bondFutureModel.underlyingIsin)))))))))
+
+                                .addPayout(Payout.builder()
+                                        .setSettlementPayout(SettlementPayout.builder()
+                                                .setPayerReceiver(PayerReceiver.builder()
+                                                        .setPayer(CounterpartyRoleEnum.PARTY_1)
+                                                        .setReceiver(CounterpartyRoleEnum.PARTY_2))
+                                                .setSettlementTerms(SettlementTerms.builder()
+                                                        .setSettlementDate(SettlementDate.builder()
+                                                                .setAdjustableOrRelativeDate(AdjustableOrAdjustedOrRelativeDate.builder()
+                                                                        .setAdjustedDate(FieldWithMetaDate.builder()
+                                                                                .setValue(settlementDate)))))))))
+
+                .build();
+
+        return product;
+
+    }
+
+    public Trade createFutureTrade(Product bond, BondFutureModel bondFutureModel){
+
+        DateTimeFormatter formatter  = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");
+        ZonedDateTime tradeDate = ZonedDateTime.parse(bondFutureModel.tradeDate, formatter);
+        Date tradeDateStr= Date.of(tradeDate.getYear(), tradeDate.getMonthValue(), tradeDate.getDayOfMonth());
+
+        Party buyerParty = Party.builder()
+                .setPartyId(List.of(PartyIdentifier.builder()
+                        .setIdentifierValue("ClientId"))).build();
+
+
+        Party sellerParty = Party.builder()
+                .setPartyId(List.of(PartyIdentifier.builder()
+                        .setIdentifierValue("DealerId"))).build();
+
+        Party traderParty = Party.builder()
+                .setPartyId(List.of(PartyIdentifier.builder()
+                        .setIdentifierValue("Trader"))).build();
+
+        List<Party> partyList = List.of(buyerParty, sellerParty, traderParty);
+
+        PartyRole buyer = PartyRole.builder()
+                .setRole(PartyRoleEnum.BUYER)
+                .setPartyReference(ReferenceWithMetaParty.builder()
+                        .setValue(buyerParty))
+                .build();
+
+        PartyRole seller = PartyRole.builder()
+                .setRole(PartyRoleEnum.SELLER)
+                .setPartyReference(ReferenceWithMetaParty.builder()
+                        .setValue(sellerParty))
+                .build();
+
+        PartyRole trader = PartyRole.builder()
+                .setRole(PartyRoleEnum.BOOKING_PARTY)
+                .setPartyReference(ReferenceWithMetaParty.builder()
+                        .setValue(traderParty))
+                .build();
+
+        List<PartyRole> partyRoleList = List.of(buyer, seller, trader);
+
+
+        Trade trade = Trade.builder()
+                .setTradeDate(FieldWithMetaDate.builder()
+                        .setValue(tradeDateStr))
+                .setTradeTime(FieldWithMetaTimeZone.builder()
+                        .setValue(TimeZone.builder()
+                                .setLocation(FieldWithMetaString.builder()
+                                        .setValue("UTC"))))
+                .setTradeIdentifier(List.of(TradeIdentifier.builder()
+                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
+                        .setAssignedIdentifier(List.of(AssignedIdentifier.builder()
+                                .setIdentifierValue("UTI123")))))
+                .setTradeLot(List.of(TradeLot.builder()
+                        .setPriceQuantity(List.of(PriceQuantity.builder()
+                                .setPrice(List.of(FieldWithMetaPriceSchedule.builder()
+                                        .setValue(PriceSchedule.builder()
+                                                .setValue(BigDecimal.valueOf(Double.parseDouble(bondFutureModel.price)))
+                                                .setUnit(UnitType.builder()
+                                                        .setFinancialUnit(FinancialUnitEnum.CONTRACT)
+                                                        .setCurrencyValue(bondFutureModel.currency))
+                                                .setPerUnitOf(UnitType.builder()
+                                                        .setFinancialUnit(FinancialUnitEnum.CONTRACT)
+                                                        .setCurrencyValue(bondFutureModel.currency))
+                                                .setPriceType(PriceTypeEnum.ASSET_PRICE))))
+                                .setQuantity(List.of(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setValue(NonNegativeQuantitySchedule.builder()
+                                                .setValue(BigDecimal.valueOf(Double.parseDouble(bondFutureModel.nominalQuantity)))
+                                                .setUnit(UnitType.builder()
+                                                        .setCurrencyValue(bondFutureModel.currency)))))
+                                .setObservable(FieldWithMetaObservable.builder()
+                                        .setValue(Observable.builder()
+                                                .setAsset(Asset.builder()
+                                                        .setInstrument(Instrument.builder()
+                                                                .setSecurity(Security.builder()
+                                                                        .setIdentifier(List.of(AssetIdentifier.builder()
+                                                                                .setIdentifierType(AssetIdTypeEnum.ISIN)
+                                                                                .setIdentifierValue(bondFutureModel.instrumentId)))
+                                                                        .addIdentifier(AssetIdentifier.builder()
+                                                                                .setIdentifier(FieldWithMetaString.builder()
+                                                                                        .setValue(bondFutureModel.instrumentName))
+                                                                                .setIdentifierType(AssetIdTypeEnum.NAME)))))))))))
+
+                .setCounterparty(List.of(Counterparty.builder()
+                        .setPartyReference(ReferenceWithMetaParty.builder()
+                                .setExternalReference("Client"))
+                        .setRole(CounterpartyRoleEnum.PARTY_1)))
+                .addCounterparty(Counterparty.builder()
+                        .setPartyReference(ReferenceWithMetaParty.builder()
+                                .setExternalReference("Dealer"))
+                        .setRole(CounterpartyRoleEnum.PARTY_2))
+                .setParty(partyList)
+                .setPartyRole(partyRoleList)
+                .setExecutionDetails(ExecutionDetails.builder()
+                        .setExecutionVenue(LegalEntity.builder()
+                                .setEntityId(List.of(FieldWithMetaString.builder()
+                                        .setValue(bondFutureModel.marketid)))))
+                .build();
+
+
+        return trade;
+    }
 
 }
