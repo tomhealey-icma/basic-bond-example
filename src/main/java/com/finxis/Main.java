@@ -129,23 +129,19 @@ public Product createBondProduct(BondModel bondModel){
     ZonedDateTime zonedSettlementDate = ZonedDateTime.parse(bondModel.settlementDate, formatter);
     Date settlementDate = Date.of(zonedSettlementDate.getYear(), zonedSettlementDate.getMonthValue(), zonedSettlementDate.getDayOfMonth());
 
-        Product product = Product.builder()
-                .setTransferableProduct(TransferableProduct.builder()
-                        .setInstrument(Instrument.builder()
-                                .setSecurity(Security.builder()
-                                        .setDebtType(DebtType.builder()
-                                                .setDebtClass(DebtClassEnum.VANILLA))
-                                        .setIdentifier(List.of(AssetIdentifier.builder()
-                                                .setIdentifierType(AssetIdTypeEnum.ISIN)
+            Product product = Product.builder()
+                    .setNonTransferableProduct(NonTransferableProduct.builder()
+                            .setIdentifier(List.of(ProductIdentifier.builder()
+                                                .setSource(ProductIdTypeEnum.ISIN)
                                                 .setIdentifierValue(bondModel.getIsin())))
-                                                .addIdentifier(AssetIdentifier.builder()
+                                                .addIdentifier(ProductIdentifier.builder()
                                                     .setIdentifier(FieldWithMetaString.builder()
                                                         .setValue(bondModel.instrumentName))
-                                                        .setIdentifierType(AssetIdTypeEnum.NAME))
-                                                .addIdentifier(AssetIdentifier.builder()
+                                                        .setSource(ProductIdTypeEnum.NAME.NAME))
+                                                .addIdentifier(ProductIdentifier.builder()
                                                         .setIdentifier(FieldWithMetaString.builder()
                                                                 .setValue("LLOYDS"))
-                                                        .setIdentifierType(AssetIdTypeEnum.NAME))))
+                                                        .setSource(ProductIdTypeEnum.NAME.NAME))
                         .setEconomicTerms(EconomicTerms.builder()
                                 .setTerminationDate(AdjustableOrRelativeDate.builder()
                                         .setAdjustableDate(AdjustableDate.builder()
@@ -223,6 +219,7 @@ public Trade createTrade(Product bond, BondModel bondModel){
 
 
         Trade trade = Trade.builder()
+                .setProduct(bond.getNonTransferableProduct())
                 .setTradeDate(FieldWithMetaDate.builder()
                         .setValue(tradeDateStr))
                 .setTradeTime(FieldWithMetaTimeZone.builder()
@@ -306,14 +303,10 @@ public Trade createTrade(Product bond, BondModel bondModel){
         Date settlementDate = Date.of(zonedSettlementDate.getYear(), zonedSettlementDate.getMonthValue(), zonedSettlementDate.getDayOfMonth());
 
         Product product = Product.builder()
-                .setTransferableProduct(TransferableProduct.builder()
-                        .setInstrument(Instrument.builder()
-                                .setListedDerivative(ListedDerivative.builder()
-                                        .setDeliveryTerm("H")
-                                        .setInstrumentType(InstrumentTypeEnum.LISTED_DERIVATIVE)
-                                        .setIdentifier(List.of(AssetIdentifier.builder()
-                                                .setIdentifierType(AssetIdTypeEnum.EXCHANGE_CODE)
-                                                .setIdentifierValue(bondFutureModel.instrumentName)))))
+                .setNonTransferableProduct(NonTransferableProduct.builder()
+                        .setIdentifier(List.of(ProductIdentifier.builder()
+                                        .setIdentifierValue(bondFutureModel.instrumentName)
+                                        .setSource(ProductIdTypeEnum.NAME)))
                         .setEconomicTerms(EconomicTerms.builder()
                                 .setTerminationDate(AdjustableOrRelativeDate.builder()
                                         .setAdjustableDate(AdjustableDate.builder()
@@ -341,14 +334,13 @@ public Trade createTrade(Product bond, BondModel bondModel){
                                                                 .setAdjustableOrRelativeDate(AdjustableOrAdjustedOrRelativeDate.builder()
                                                                         .setAdjustedDate(FieldWithMetaDate.builder()
                                                                                 .setValue(settlementDate)))))))))
-
                 .build();
 
         return product;
 
     }
 
-    public Trade createFutureTrade(Product bond, BondFutureModel bondFutureModel){
+    public Trade createFutureTrade(Product bondFuture, BondFutureModel bondFutureModel){
 
         DateTimeFormatter formatter  = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");
         ZonedDateTime tradeDate = ZonedDateTime.parse(bondFutureModel.tradeDate, formatter);
@@ -391,6 +383,7 @@ public Trade createTrade(Product bond, BondModel bondModel){
 
 
         Trade trade = Trade.builder()
+                .setProduct(bondFuture.getNonTransferableProduct())
                 .setTradeDate(FieldWithMetaDate.builder()
                         .setValue(tradeDateStr))
                 .setTradeTime(FieldWithMetaTimeZone.builder()
