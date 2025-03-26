@@ -1,9 +1,6 @@
 package com.finxis;
 
-import cdm.base.datetime.AdjustableDate;
-import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
-import cdm.base.datetime.AdjustableOrRelativeDate;
-import cdm.base.datetime.TimeZone;
+import cdm.base.datetime.*;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.base.datetime.daycount.functions.DayCountBasis;
 import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
@@ -29,6 +26,7 @@ import cdm.observable.asset.metafields.ReferenceWithMetaPriceSchedule;
 import cdm.product.asset.FixedRateSpecification;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
+import cdm.product.common.schedule.PaymentDates;
 import cdm.product.common.schedule.RateSchedule;
 import cdm.product.common.settlement.SettlementDate;
 import cdm.product.common.settlement.SettlementTerms;
@@ -147,18 +145,7 @@ public Product createBondProduct(BondModel bondModel){
                                         .setAdjustableDate(AdjustableDate.builder()
                                                 .setAdjustedDate(FieldWithMetaDate.builder()
                                                         .setValue(terminationDate))))
-                                .setPayout(List.of(Payout.builder()
-                                        .setInterestRatePayout(InterestRatePayout.builder()
-                                                .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder()
-                                                        .setValue(DayCountFractionEnum.ACT_365_FIXED))
-                                                .setRateSpecification(RateSpecification.builder()
-                                                        .setFixedRateSpecification(FixedRateSpecification.builder()
-                                                                .setRateSchedule(RateSchedule.builder()
-                                                                        .setPriceValue(PriceSchedule.builder()
-                                                                                .setPriceExpression(PriceExpressionEnum.PAR_VALUE_FRACTION))
-                                                                        .setPrice(ReferenceWithMetaPriceSchedule.builder()
-                                                                                .setValue(PriceSchedule.builder()
-                                                                                        .setValue(BigDecimal.valueOf(Double.parseDouble(bondModel.couponRate)))))))))))
+
                                 .addPayout(Payout.builder()
                                         .setSettlementPayout(SettlementPayout.builder()
                                                 .setPayerReceiver(PayerReceiver.builder()
@@ -168,9 +155,36 @@ public Product createBondProduct(BondModel bondModel){
                                                         .setSettlementDate(SettlementDate.builder()
                                                                 .setAdjustableOrRelativeDate(AdjustableOrAdjustedOrRelativeDate.builder()
                                                                                 .setAdjustedDate(FieldWithMetaDate.builder()
-                                                                                        .setValue(settlementDate)))))))))
-
-                .build();
+                                                                                        .setValue(settlementDate)))))
+                                                .setUnderlier(Underlier.builder()
+                                                        .setProduct(Product.builder()
+                                                                .setTransferableProduct(TransferableProduct.builder()
+                                                                        .setInstrument(Instrument.builder()
+                                                                                .setSecurity(Security.builder()
+                                                                                        .setIdentifier(List.of(AssetIdentifier.builder()
+                                                                                                        .setIdentifierValue(bondModel.getIsin())
+                                                                                                        .setIdentifierType(AssetIdTypeEnum.ISIN)))))
+                                                                        .setEconomicTerms(EconomicTerms.builder()
+                                                                                .setPayout(List.of(Payout.builder()
+                                                                                .setInterestRatePayout(InterestRatePayout.builder()
+                                                                                        .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder()
+                                                                                                .setValue(DayCountFractionEnum.ACT_365_FIXED))
+                                                                                        .setPaymentDates(PaymentDates.builder()
+                                                                                                .setPaymentFrequency(Frequency.builder()
+                                                                                                        .setPeriod(PeriodExtendedEnum.Y)
+                                                                                                        .setPeriodMultiplier(1)
+                                                                                                        .build())
+                                                                                                .build())
+                                                                                        .setRateSpecification(RateSpecification.builder()
+                                                                                                .setFixedRateSpecification(FixedRateSpecification.builder()
+                                                                                                        .setRateSchedule(RateSchedule.builder()
+                                                                                                                .setPriceValue(PriceSchedule.builder()
+                                                                                                                        .setPriceExpression(PriceExpressionEnum.PAR_VALUE_FRACTION))
+                                                                                                                .setPrice(ReferenceWithMetaPriceSchedule.builder()
+                                                                                                                        .setValue(PriceSchedule.builder()
+                                                                                                                                .setValue(BigDecimal.valueOf(Double.parseDouble(bondModel.couponRate)
+                                                                                                                                ))))))))))))))))))
+                    .build();
 
         return product;
 
