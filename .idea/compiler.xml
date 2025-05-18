@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="bond-demo-v6" />
         <module name="basic-bond-example" />
+        <module name="multi-product-demo-v6" />
       </profile>
     </annotationProcessing>
   </component>

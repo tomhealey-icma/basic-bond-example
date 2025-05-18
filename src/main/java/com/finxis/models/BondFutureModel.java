@@ -1,4 +1,4 @@
-package com.finxis;
+package com.finxis.models;
 
 public class BondFutureModel {
 
