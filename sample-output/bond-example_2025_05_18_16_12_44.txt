@@ -1,0 +1,246 @@
+{
+  "product" : {
+    "identifier" : [ {
+      "identifier" : {
+        "value" : "XS2151069775"
+      },
+      "source" : "ISIN"
+    }, {
+      "identifier" : {
+        "value" : "25VG - LLOYDS 2.375% 09 Apr 2026"
+      },
+      "source" : "Name"
+    }, {
+      "identifier" : {
+        "value" : "LLOYDS"
+      },
+      "source" : "Name"
+    } ],
+    "economicTerms" : {
+      "terminationDate" : {
+        "adjustableDate" : {
+          "adjustedDate" : {
+            "value" : "2026-04-09"
+          }
+        }
+      },
+      "payout" : [ {
+        "SettlementPayout" : {
+          "payerReceiver" : {
+            "payer" : "Party1",
+            "receiver" : "Party2"
+          },
+          "settlementTerms" : {
+            "settlementDate" : {
+              "adjustableOrRelativeDate" : {
+                "adjustedDate" : {
+                  "value" : "2025-03-03"
+                }
+              }
+            }
+          },
+          "underlier" : {
+            "Product" : {
+              "TransferableProduct" : {
+                "Instrument" : {
+                  "Security" : {
+                    "identifier" : [ {
+                      "identifier" : {
+                        "value" : "XS2151069775"
+                      },
+                      "identifierType" : "ISIN"
+                    } ]
+                  }
+                },
+                "economicTerms" : {
+                  "payout" : [ {
+                    "InterestRatePayout" : {
+                      "rateSpecification" : {
+                        "FixedRateSpecification" : {
+                          "rateSchedule" : {
+                            "price" : {
+                              "value" : {
+                                "value" : 2.375
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "dayCountFraction" : {
+                        "value" : "ACT/365.FIXED"
+                      },
+                      "paymentDates" : {
+                        "paymentFrequency" : {
+                          "periodMultiplier" : 1,
+                          "period" : "Y"
+                        }
+                      }
+                    }
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      } ]
+    }
+  },
+  "tradeLot" : [ {
+    "priceQuantity" : [ {
+      "price" : [ {
+        "value" : {
+          "value" : 99.8,
+          "unit" : {
+            "currency" : {
+              "value" : "EUR"
+            }
+          },
+          "perUnitOf" : {
+            "currency" : {
+              "value" : "EUR"
+            }
+          },
+          "priceType" : "AssetPrice",
+          "priceExpression" : "ParValueFraction",
+          "composite" : {
+            "baseValue" : 99.8,
+            "operand" : 0.0213,
+            "arithmeticOperator" : "Add",
+            "operandType" : "AccruedInterest"
+          }
+        }
+      } ],
+      "quantity" : [ {
+        "value" : {
+          "value" : 500000.0,
+          "unit" : {
+            "currency" : {
+              "value" : "EUR"
+            }
+          }
+        }
+      } ],
+      "observable" : {
+        "value" : {
+          "Asset" : {
+            "Instrument" : {
+              "Security" : {
+                "identifier" : [ {
+                  "identifier" : {
+                    "value" : "XS2151069775"
+                  },
+                  "identifierType" : "ISIN"
+                }, {
+                  "identifier" : {
+                    "value" : "25VG - LLOYDS 2.375% 09 Apr 2026"
+                  },
+                  "identifierType" : "Name"
+                } ]
+              }
+            }
+          }
+        }
+      }
+    }, {
+      "price" : [ {
+        "value" : {
+          "value" : 20.45,
+          "cashPrice" : {
+            "cashPriceType" : "Fee"
+          }
+        }
+      } ]
+    } ]
+  } ],
+  "counterparty" : [ {
+    "role" : "Party1",
+    "partyReference" : {
+      "externalReference" : "Client"
+    }
+  }, {
+    "role" : "Party2",
+    "partyReference" : {
+      "externalReference" : "Dealer"
+    }
+  } ],
+  "tradeIdentifier" : [ {
+    "assignedIdentifier" : [ {
+      "identifier" : {
+        "value" : "UTI123"
+      }
+    } ],
+    "identifierType" : "UniqueTransactionIdentifier"
+  } ],
+  "tradeDate" : {
+    "value" : "2025-02-27"
+  },
+  "tradeTime" : {
+    "value" : {
+      "location" : {
+        "value" : "UTC"
+      }
+    }
+  },
+  "party" : [ {
+    "partyId" : [ {
+      "identifier" : {
+        "value" : "ClientId"
+      }
+    } ]
+  }, {
+    "partyId" : [ {
+      "identifier" : {
+        "value" : "DealerId"
+      }
+    } ]
+  }, {
+    "partyId" : [ {
+      "identifier" : {
+        "value" : "Trader"
+      }
+    } ]
+  } ],
+  "partyRole" : [ {
+    "partyReference" : {
+      "value" : {
+        "partyId" : [ {
+          "identifier" : {
+            "value" : "ClientId"
+          }
+        } ]
+      }
+    },
+    "role" : "Buyer"
+  }, {
+    "partyReference" : {
+      "value" : {
+        "partyId" : [ {
+          "identifier" : {
+            "value" : "DealerId"
+          }
+        } ]
+      }
+    },
+    "role" : "Seller"
+  }, {
+    "partyReference" : {
+      "value" : {
+        "partyId" : [ {
+          "identifier" : {
+            "value" : "Trader"
+          }
+        } ]
+      }
+    },
+    "role" : "BookingParty"
+  } ],
+  "executionDetails" : {
+    "executionVenue" : {
+      "entityId" : [ {
+        "value" : "BCF"
+      }, {
+        "value" : "Bloomberg"
+      } ]
+    }
+  }
+}

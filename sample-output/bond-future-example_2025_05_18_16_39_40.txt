@@ -1,0 +1,191 @@
+{
+  "product" : {
+    "identifier" : [ {
+      "identifier" : {
+        "value" : "TN MAR5 Future"
+      },
+      "source" : "Name"
+    } ],
+    "economicTerms" : {
+      "terminationDate" : {
+        "adjustableDate" : {
+          "adjustedDate" : {
+            "value" : "2025-06-08"
+          }
+        }
+      },
+      "payout" : [ {
+        "AssetPayout" : {
+          "underlier" : {
+            "Instrument" : {
+              "Security" : {
+                "identifier" : [ {
+                  "identifier" : {
+                    "value" : "DE000F1C2NG8"
+                  },
+                  "identifierType" : "ISIN"
+                } ],
+                "debtType" : {
+                  "debtClass" : "Vanilla"
+                }
+              }
+            }
+          }
+        }
+      }, {
+        "SettlementPayout" : {
+          "payerReceiver" : {
+            "payer" : "Party1",
+            "receiver" : "Party2"
+          },
+          "settlementTerms" : {
+            "settlementDate" : {
+              "adjustableOrRelativeDate" : {
+                "adjustedDate" : {
+                  "value" : "2025-02-07"
+                }
+              }
+            }
+          }
+        }
+      } ]
+    }
+  },
+  "tradeLot" : [ {
+    "priceQuantity" : [ {
+      "price" : [ {
+        "value" : {
+          "value" : 158.1,
+          "unit" : {
+            "financialUnit" : "Contract",
+            "currency" : {
+              "value" : "EUR"
+            }
+          },
+          "perUnitOf" : {
+            "financialUnit" : "Contract",
+            "currency" : {
+              "value" : "EUR"
+            }
+          },
+          "priceType" : "AssetPrice"
+        }
+      } ],
+      "quantity" : [ {
+        "value" : {
+          "value" : 12.0,
+          "unit" : {
+            "currency" : {
+              "value" : "EUR"
+            }
+          }
+        }
+      } ],
+      "observable" : {
+        "value" : {
+          "Asset" : {
+            "Instrument" : {
+              "Security" : {
+                "identifier" : [ {
+                  "identifier" : {
+                    "value" : "DE000F1C2NG8"
+                  },
+                  "identifierType" : "ISIN"
+                } ]
+              }
+            }
+          }
+        }
+      }
+    } ]
+  } ],
+  "counterparty" : [ {
+    "role" : "Party1",
+    "partyReference" : {
+      "externalReference" : "Client"
+    }
+  }, {
+    "role" : "Party2",
+    "partyReference" : {
+      "externalReference" : "Dealer"
+    }
+  } ],
+  "tradeIdentifier" : [ {
+    "assignedIdentifier" : [ {
+      "identifier" : {
+        "value" : "UTI123"
+      }
+    } ],
+    "identifierType" : "UniqueTransactionIdentifier"
+  } ],
+  "tradeDate" : {
+    "value" : "2025-02-07"
+  },
+  "tradeTime" : {
+    "value" : {
+      "location" : {
+        "value" : "UTC"
+      }
+    }
+  },
+  "party" : [ {
+    "partyId" : [ {
+      "identifier" : {
+        "value" : "ClientId"
+      }
+    } ]
+  }, {
+    "partyId" : [ {
+      "identifier" : {
+        "value" : "DealerId"
+      }
+    } ]
+  }, {
+    "partyId" : [ {
+      "identifier" : {
+        "value" : "Trader"
+      }
+    } ]
+  } ],
+  "partyRole" : [ {
+    "partyReference" : {
+      "value" : {
+        "partyId" : [ {
+          "identifier" : {
+            "value" : "ClientId"
+          }
+        } ]
+      }
+    },
+    "role" : "Buyer"
+  }, {
+    "partyReference" : {
+      "value" : {
+        "partyId" : [ {
+          "identifier" : {
+            "value" : "DealerId"
+          }
+        } ]
+      }
+    },
+    "role" : "Seller"
+  }, {
+    "partyReference" : {
+      "value" : {
+        "partyId" : [ {
+          "identifier" : {
+            "value" : "Trader"
+          }
+        } ]
+      }
+    },
+    "role" : "BookingParty"
+  } ],
+  "executionDetails" : {
+    "executionVenue" : {
+      "entityId" : [ {
+        "value" : "CME"
+      } ]
+    }
+  }
+}
